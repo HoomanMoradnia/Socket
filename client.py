@@ -5,19 +5,22 @@ def start_client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the server's address and port
-    server_address = ('localhost', 8000)  # Must match the server's address
+    server_address = ('localhost', 8000)
     print(f"Connecting to {server_address[0]}:{server_address[1]}")
-    client_socket.connect(server_address) # Request to connect to the server
+    client_socket.connect(server_address)
 
     try:
-        # Send data to the server
-        message = "Hello, Server!"
-        client_socket.sendall(message.encode('utf-8'))  # Encode string to bytes
-        print(f"Sent to server: {message}")
+        while True:
+            # Send data to the server
+            message = input("Enter a message (type 'exit' to quit): ")
+            if message.lower() == 'exit':
+                print("Disconnecting from the server...")
+                break
+            client_socket.sendall(message.encode('utf-8'))
 
-        # Receive a response from the server
-        data = client_socket.recv(1024).decode('utf-8')  # Decode bytes to string
-        print(f"Received from server: {data}")
+            # Receive a response from the server
+            data = client_socket.recv(1024).decode('utf-8')
+            print(f"Message from server: {data}")
     finally:
         # Clean up the connection
         client_socket.close()
