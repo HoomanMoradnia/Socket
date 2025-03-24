@@ -26,8 +26,8 @@ def start_client():
     username_prompt = client_socket.recv(1024).decode('utf-8')
     print(username_prompt, end="")  # Display the prompt without a newline
 
-    # Ask the user for a username
-    username = input()
+    # Ask the user for a username and send it to the server
+    username = input()  # Wait for the user to enter their username
     client_socket.sendall(username.encode('utf-8'))
 
     # Start a thread to receive messages
