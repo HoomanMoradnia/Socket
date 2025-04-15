@@ -19,29 +19,16 @@ def broadcast(message, sender_socket=None):
                 client_socket.close()
                 del clients[client_socket]
 
-def send_private_message(sender_socket, target_username, message):
-    for client_socket, username in clients.items():
-        if username == target_username:
-            try:
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                client_socket.sendall(f"[Private from {clients[sender_socket]}] ({timestamp}): {message}".encode('utf-8'))
-                return True
-            except:
-                # Remove the client if sending fails
-                client_socket.close()
-                del clients[client_socket]
-    return False
-
 def handle_client(connection, client_address):
     global active_clients
-
+    
     # Ask the client for a username
     connection.sendall("Enter your username: ".encode('utf-8'))
     username = connection.recv(1024).decode('utf-8').strip()
     print(f"New connection from {username} ({client_address})")
-    clients[connection] = username  # Add client to the dictionary
-    active_clients += 1  # Increment the active client counter
-
+    clients[connection] = (client_address, username) # Add client to the dictionary
+    active_clients += 1 # Increment the active client counter
+    
     # Notify all clients about the new user
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     broadcast(f"{username} has joined the chat! ({timestamp})", connection)
@@ -52,49 +39,64 @@ def handle_client(connection, client_address):
             data = connection.recv(1024).decode('utf-8')
             if not data:
                 print(f"{username} disconnected.")
-                break  # Exit if the client disconnects
-            
+                break # Exit if the client disconnects
+
             # Check if the client wants to exit
             if data.strip().lower() == "/exit":
                 print(f"{username} requested to exit.")
                 break
 
+            elif data.strip().lower() == "/help":
+                help_msg = """
+Available commands:
+- /exit - Exit the chat
+- /users - List online users
+- /pm <username> <message> - Private message
+- /help - Show this help"""
+                connection.sendall(help_msg.encode('utf-8'))
+
             # Check if the client wants to list all users
-            if data.strip().lower() == "/users":
-                user_list = "\nConnected users:\n" + "\n".join([f"{user} ({addr[0]})" for sock, (addr, user) in clients.items()])
+            elif data.strip().lower() == "/users":
+                user_list = "Online users:\n" + "\n".join(
+                    [f"{user} ({addr[0]})" for sock, (addr, user) in clients.items()]
+                )
                 connection.sendall(user_list.encode('utf-8'))
-                continue
 
             # Check if the client wants to send a private message
-            if data.startswith("/pm"):
+            elif data.startswith("/pm"):
                 parts = data.split(" ", 2)
                 if len(parts) == 3:
-                    target_username, message = parts[1], parts[2]
-                    if send_private_message(connection, target_username, message):
-                        connection.sendall(f"Private message sent to {target_username}.".encode('utf-8'))
+                    target_user, msg = parts[1], parts[2]
+                    sent = False
+                    for sock, (addr, user) in clients.items():
+                        if user == target_user:
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            sock.sendall(f"[Private message from {username}] ({timestamp}): {msg}".encode('utf-8'))
+                            sent = True
+                            break
+                    if sent:
+                        connection.sendall(f"Private message sent to {target_user}".encode('utf-8'))
                     else:
-                        connection.sendall(f"User {target_username} not found.".encode('utf-8'))
+                        connection.sendall(f"User {target_user} not found".encode('utf-8'))
                 else:
-                    connection.sendall("Invalid private message format. Use /pm <username> <message>".encode('utf-8'))
-                continue
+                    connection.sendall("Invalid format. Use: /pm username message".encode('utf-8'))
 
-            # Broadcast the message to all other clients
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            message = f"{username} ({timestamp}): {data}"
-            print(f"Received from {username}: {data}")
-            broadcast(message, connection)
+            else:
+                # Normal message broadcast
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                broadcast(f"{username} ({timestamp}): {data}", connection)
+
     except Exception as e:
         print(f"Error handling client {username}: {e}")
     finally:
         # Clean up the connection
+        if connection in clients:
+            del clients[connection] # Remove client from the dictionary
+            active_clients -= 1 # Decrement the active client counter
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            broadcast(f"{username} has left ({timestamp})", connection)
         connection.close()
-        del clients[connection]  # Remove client from the dictionary
-        active_clients -= 1  # Decrement the active client counter
-        print(f"Connection with {username} closed.")
-
-        # Notify all clients that the user has left
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        broadcast(f"{username} has left the chat. ({timestamp})", connection)
+        print(f"{username} disconnected")
 
         # Shut down the server if there are no more clients
         if active_clients == 0:
@@ -106,25 +108,25 @@ def handle_client(connection, client_address):
 
 def start_server():
     global server_socket
+
     # Create a TCP/IP socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+    
     # Bind the socket to a specific address and port
     server_address = ('localhost', 8000)
-    print(f"Starting server on {server_address[0]}:{server_address[1]}")
     server_socket.bind(server_address)
 
     # Listen for incoming connections
     server_socket.listen(5)
-    print("Waiting for connections...")
+    print(f"Server started on {server_address}")
 
     try:
         while True:
             # Accept a new connection
-            connection, client_address = server_socket.accept()
+            connection, address = server_socket.accept()
 
             # Start a new thread to handle the client
-            thread = threading.Thread(target=handle_client, args=(connection, client_address))
+            thread = threading.Thread(target=handle_client, args=(connection, address))
             thread.start()
     except OSError as e:
         # Handle the case where the server socket is closed
