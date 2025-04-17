@@ -30,7 +30,7 @@ A simple messenger application built using socket programming in Python. This pr
 Make sure you have Python 3 installed. You can check it with:
 
 ```bash
-python --version
+python3 --version
 ```
 ### for running the messenger:
 ```bash
