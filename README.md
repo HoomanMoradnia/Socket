@@ -14,7 +14,9 @@ A simple messenger application built using socket programming in Python. This pr
 
 .
 ├── client.py     # Code for client-side chat interface
+
 ├── server.py     # Code for handling multiple clients and message broadcasting
+
 └── README.md     # Project documentation
 
 ## Technologies Used
@@ -32,18 +34,18 @@ Make sure you have Python 3 installed. You can check it with:
 ```bash
 python --version
 ```
-for running the messenger:
+### for running the messenger:
 ```bash
 git clone https://github.com/HoomanMoradnia/Socket_messenger.git
 cd Socket_messenger
 ```
 Running the Server:
 ```bash
-python server.py
+python3 server.py
 ```
 Running the Client(In a new terminal):
 ```bash
-python client.py
+python3 client.py
 ```
 
 ### Acknowledgements
