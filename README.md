@@ -1,4 +1,4 @@
-# Socket Messenger
+# Socket ـ Messenger
 
 A simple messenger application built using socket programming in Python. This project demonstrates how sockets can be used to implement a basic chat system between a client and a server over a network.
 
@@ -23,7 +23,7 @@ A simple messenger application built using socket programming in Python. This pr
 - `socket` module
 - `threading` module
 
-## Getting Started
+## Getting Started (Windows/Linux)
 
 ### Prerequisites
 
@@ -41,11 +41,16 @@ Running the Server:
 ```bash
 python3 server.py
 ```
-Running the Client(In a new terminal):
+Running the Client (In a new terminal):
 ```bash
 python3 client.py
 ```
+### Help
+You can type ‍‍‍```/help``` to learn about a specific command.
 
 ### Acknowledgements
 This project was developed as part of a university assignment to understand the fundamentals of socket programming.
+
+### Preview
+![Demo](demo.gif)
 
