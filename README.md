@@ -25,14 +25,16 @@ A simple messenger application built using socket programming in Python. This pr
 
 ## Getting Started (Windows/Linux)
 
-### Prerequisites
+### For Linux:
+
+#### Prerequisites
 
 Make sure you have Python 3 installed. You can check it with:
 
 ```bash
 python3 --version
 ```
-### for running the messenger:
+#### for running the messenger:
 ```bash
 git clone https://github.com/HoomanMoradnia/Socket_messenger.git
 cd Socket_messenger
@@ -45,6 +47,30 @@ Running the Client (In a new terminal):
 ```bash
 python3 client.py
 ```
+
+### For Windows:
+
+#### Prerequisites
+
+Make sure you have Python installed. You can check it with:
+
+```bash
+python --version
+```
+#### for running the messenger:
+```bash
+git clone https://github.com/HoomanMoradnia/Socket_messenger.git
+cd Socket_messenger
+```
+Running the Server:
+```bash
+python server.py
+```
+Running the Client (In a new terminal):
+```bash
+python client.py
+```
+
 ### Help
 You can type ‍‍‍```/help``` to learn about a specific command.
 
