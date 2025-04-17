@@ -11,14 +11,12 @@ A simple messenger application built using socket programming in Python. This pr
 - Cross-platform (Windows/Linux)
 
 ## Project Structure
-
+```bash
 .
 ├── client.py     # Code for client-side chat interface
-
 ├── server.py     # Code for handling multiple clients and message broadcasting
-
 └── README.md     # Project documentation
-
+```
 ## Technologies Used
 
 - Python 3
